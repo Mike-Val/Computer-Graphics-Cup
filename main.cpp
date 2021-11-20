@@ -12,6 +12,9 @@
 
 #include "Image.h"
 #include "Material.h"
+#include "Triangle.hpp"
+#include "Tree.hpp"
+#include "OBJ.hpp"
 
 using namespace std;
 
@@ -491,7 +494,15 @@ glm::vec3 toneMapping(glm::vec3 intensity){
 }
 
 int main(int argc, const char * argv[]) {
+	OBJ::Object model = OBJ::read("models/bunny.obj");
 
+	cout << model;
+
+
+
+
+
+	return 0;
     clock_t t = clock(); // variable for keeping the time of the rendering
 
     int width = 1024; //width of the image

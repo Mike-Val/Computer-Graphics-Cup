@@ -16,34 +16,34 @@ using namespace std;
 
 namespace OBJ {
 
-struct Object {
+struct Model {
 	bool good;
 	string name;
 	vector<Triangle> triangles;
 
-	Object(string name, vector<Triangle> triangles) : Object(name, triangles, true) {}
-	Object(string name, vector<Triangle> triangles, bool good) : name(name), triangles(triangles), good(good) {}
+	Model(string name, vector<Triangle> triangles) : Model(name, triangles, true) {}
+	Model(string name, vector<Triangle> triangles, bool good) : name(name), triangles(triangles), good(good) {}
 
 	string toString() const {
 		stringstream ss;
-		ss << "OBJ::Object (" << name << "): " << triangles.size() << " triangles";
+		ss << "OBJ::Model (" << name << "): " << triangles.size() << " triangles";
 		return ss.str();
 	}
 	
 	// Define << operator
-	friend ostream& operator<<(ostream& os, const Object& obj) {
+	friend ostream& operator<<(ostream& os, const Model& obj) {
 		os << obj.toString();
 		return os;
 	}
 };
 
 // Assuming no texture coordinates are present in the OBJ file
-Object read(string filename) {
+Model read(const string &filename) {
 	// Open file
 	ifstream file(filename);
 	if (!file.is_open()) {
 		cerr << "Could not open file " << filename << endl;
-		return Object("", vector<Triangle>(), false);
+		return Model("", vector<Triangle>(), false);
 	}
 	string name;
 	vector<glm::vec3> vertices;
@@ -88,7 +88,7 @@ Object read(string filename) {
 											vertices[face_vertices[2]]));
 		}
 	}
-	return Object(name, triangles);
+	return Model(name, triangles);
 }
 
 } // namespace OBJReader

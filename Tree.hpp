@@ -22,7 +22,7 @@ struct Tree {
 		if (right) delete right;
 	}
 
-	void insert(Triangle t) {
+	void insert(const Triangle t) {
 		int dimension = level % 3;
 		if (t.o[dimension] < triangles[0].o[dimension]) {
 			if (left) left->insert(t);

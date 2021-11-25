@@ -40,8 +40,8 @@ void sceneDefinition (){
 	blue_specular.reflection = 1.0f;
 
 
-	objects.push_back(new Sphere(1.0, glm::vec3(1,-2,8), blue_specular));
-	objects.push_back(new Sphere(0.5, glm::vec3(-1,-2.5,6), red_specular));
+	// objects.push_back(new Sphere(1.0, glm::vec3(1,-2,8), blue_specular));
+	// objects.push_back(new Sphere(0.5, glm::vec3(-1,-2.5,6), red_specular));
 	//objects.push_back(new Sphere(1.0, glm::vec3(3,-2,6), green_diffuse));
 	
 	
@@ -49,13 +49,13 @@ void sceneDefinition (){
 	
 	Material textured;
 	textured.texture = &rainbowTexture;
-	objects.push_back(new Sphere(7.0, glm::vec3(-6,4,23), textured));
+	// objects.push_back(new Sphere(7.0, glm::vec3(-6,4,23), textured));
 
 
 	Material glass;
 	glass.refraction = 2.0f;
 
-	objects.push_back(new Sphere(2.0, glm::vec3(-3, -1, 8), glass));
+	// objects.push_back(new Sphere(2.0, glm::vec3(-3, -1, 8), glass));
 	
 	
 	//Planes
@@ -87,14 +87,14 @@ void sceneDefinition (){
 	glm::mat4 scalingMatrix = glm::scale(glm::vec3(3.0f, 12.0f, 3.0f));
 	glm::mat4 rotationMatrix = glm::rotate(glm::radians(180.0f) , glm::vec3(1,0,0));
 	cone->setTransformation(translationMatrix*scalingMatrix*rotationMatrix);
-	objects.push_back(cone);
+	// objects.push_back(cone);
 	
 	Cone *cone2 = new Cone(green_diffuse);
 	translationMatrix = glm::translate(glm::vec3(6,-3,7));
 	scalingMatrix = glm::scale(glm::vec3(1.0f, 3.0f, 1.0f));
 	rotationMatrix = glm::rotate(glm::atan(3.0f), glm::vec3(0,0,1));
 	cone2->setTransformation(translationMatrix* rotationMatrix*scalingMatrix);
-	objects.push_back(cone2);
+	// objects.push_back(cone2);
 	
 	
 	lights.push_back(new Light(glm::vec3(0, 26, 5), glm::vec3(1.0, 1.0, 1.0)));

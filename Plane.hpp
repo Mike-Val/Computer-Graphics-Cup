@@ -19,12 +19,10 @@ public:
 		this->material = material;
 	}
 	Hit intersect(const Ray &ray){
-		
 		Hit hit;
 		hit.hit = false;
 		float DdotN = glm::dot(ray.direction, normal);
-		if(DdotN < 0){
-			
+		if(DdotN < 0) {
 			float PdotN = glm::dot (point-ray.origin, normal);
 			float t = PdotN/DdotN;
 			

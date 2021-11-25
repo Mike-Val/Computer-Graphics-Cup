@@ -1,3 +1,6 @@
+#ifndef OBJ_HPP
+#define OBJ_HPP
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -8,9 +11,7 @@
 
 #include "glm/glm.hpp"
 #include "Triangle.hpp"
-
-#ifndef OBJ_HPP
-#define OBJ_HPP
+#include "Material.h"
 
 using namespace std;
 
@@ -20,9 +21,19 @@ struct Model {
 	bool good;
 	string name;
 	vector<Triangle> triangles;
+	Material material;
 
-	Model(string name, vector<Triangle> triangles) : Model(name, triangles, true) {}
-	Model(string name, vector<Triangle> triangles, bool good) : name(name), triangles(triangles), good(good) {}
+	glm::mat4 transformationMatrix;
+	glm::mat4 inverseTransformationMatrix;
+	glm::mat4 normalMatrix;
+
+
+	Model(string name) : Model(name, true) {}
+	Model(string name, bool good) : name(name), good(good) {}
+
+	void addTriangle(Triangle t) {
+		triangles.push_back(t);
+	}
 
 	string toString() const {
 		stringstream ss;
@@ -30,29 +41,34 @@ struct Model {
 		return ss.str();
 	}
 	
-	// Define << operator
 	friend ostream& operator<<(ostream& os, const Model& obj) {
 		os << obj.toString();
 		return os;
+	}
+
+	void setTransformation(glm::mat4 matrix){
+		transformationMatrix = matrix;
+		inverseTransformationMatrix = glm::inverse(matrix);
+		normalMatrix = glm::transpose(inverseTransformationMatrix);
 	}
 };
 
 // Assuming no texture coordinates are present in the OBJ file
 Model read(const string &filename) {
+	Model model("", false);
 	// Open file
 	ifstream file(filename);
 	if (!file.is_open()) {
 		cerr << "Could not open file " << filename << endl;
-		return Model("", vector<Triangle>(), false);
+		return model;
 	}
 	string name;
 	vector<glm::vec3> vertices;
 	vector<glm::vec3> normals;
-	vector<Triangle> triangles;
 	string line;
 	while (getline(file, line)) {
 		if (line.substr(0, 1) == "o") {
-			name = line.substr(2, line.length() - 2);
+			model.name = line.substr(2, line.length() - 2);
 		} else if (line.substr(0,2) == "vn") {
 			stringstream ss(line.substr(3));
 			glm::vec3 normal;
@@ -83,12 +99,13 @@ Model read(const string &filename) {
 				face_vertices.push_back(vertex - 1);
 				face_normals.push_back(normal - 1);
 			}
-			triangles.push_back(Triangle(vertices[face_vertices[0]],
-											vertices[face_vertices[1]],
-											vertices[face_vertices[2]]));
+			model.addTriangle(Triangle(vertices[face_vertices[0]],
+										vertices[face_vertices[1]],
+										vertices[face_vertices[2]]));
 		}
 	}
-	return Model(name, triangles);
+	model.good = true;
+	return model;
 }
 
 } // namespace OBJReader

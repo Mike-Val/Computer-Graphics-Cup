@@ -66,12 +66,12 @@ void sceneDefinition (){
 	Material blue_diffuse;
 	blue_diffuse.ambient = glm::vec3(0.06f, 0.06f, 0.09f);
 	blue_diffuse.diffuse = glm::vec3(0.6f, 0.6f, 0.9f);
-	objects.push_back(new Plane(glm::vec3(0,-3,0), glm::vec3(0.0,1,0)));
+	// objects.push_back(new Plane(glm::vec3(0,-3,0), glm::vec3(0.0,1,0)));
 	objects.push_back(new Plane(glm::vec3(0,1,30), glm::vec3(0.0,0.0,-1.0), green_diffuse));
-	objects.push_back(new Plane(glm::vec3(-15,1,0), glm::vec3(1.0,0.0,0.0), red_diffuse));
-	objects.push_back(new Plane(glm::vec3(15,1,0), glm::vec3(-1.0,0.0,0.0), blue_diffuse));
-	objects.push_back(new Plane(glm::vec3(0,27,0), glm::vec3(0.0,-1,0)));
-	objects.push_back(new Plane(glm::vec3(0,1,-0.01), glm::vec3(0.0,0.0,1.0), green_diffuse));
+	// objects.push_back(new Plane(glm::vec3(-15,1,0), glm::vec3(1.0,0.0,0.0), red_diffuse));
+	// objects.push_back(new Plane(glm::vec3(15,1,0), glm::vec3(-1.0,0.0,0.0), blue_diffuse));
+	// objects.push_back(new Plane(glm::vec3(0,27,0), glm::vec3(0.0,-1,0)));
+	// objects.push_back(new Plane(glm::vec3(0,1,-0.01), glm::vec3(0.0,0.0,1.0), green_diffuse));
 	
 	
 	// Cone

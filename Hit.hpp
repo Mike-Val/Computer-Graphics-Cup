@@ -16,6 +16,8 @@ struct Hit{
     float distance; ///< Distance from the origin of the ray to the intersection point
     Object *object; ///< A pointer to the intersected object
 	glm::vec2 uv; ///< Coordinates for computing the texture (texture coordinates)
+
+    bool debug = false;
 };
 
 #endif

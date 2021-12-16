@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <sstream>
 #include <cmath>
+#include <limits>
 
 #include "glm/glm.hpp"
 #include "Triangle.hpp"
@@ -12,34 +13,37 @@
 #include "Hit.hpp"
 #include "OBJ.hpp"
 
+#define FLOAT_INFINITY std::numeric_limits<float>::infinity()
+
 using namespace std;
 using namespace OBJ;
 
 struct BoundingBox {
 	glm::vec3 min, max;
 	vector<Triangle> triangles;
-	int maxSize = 3;
+	int maxSize = 1;
 	BoundingBox *left = nullptr, *right = nullptr;
 	Model *model = nullptr;
 	int level;
 
 	BoundingBox();
-	BoundingBox(vector<Triangle> T, int axis, Model *m, int l) {
+	BoundingBox(vector<Triangle> &T, int axis, Model *m, int l) {
 		level = l;
 		model = m;
 		if (T.size() == 0) {
-			throw "Empty triangle list";
+			cout << "Empty Bounding Box" << endl;
+			throw "Empty triangle vector";
 			return;
 		}
 		
 		if (T.size() <= maxSize) {
-			min = 1000000000.0f * glm::vec3(1, 1, 1);
-			max = -1000000000.0f * glm::vec3(1, 1, 1);
+			min = FLOAT_INFINITY * glm::vec3(1, 1, 1);
+			max = -FLOAT_INFINITY * glm::vec3(1, 1, 1);
 			for (int i = 0; i < T.size(); i++) {
 				Triangle t = T[i];
 				for (int d = 0; d < 3; d++) {
-					min[d] = glm::min(min[d], t.min[d]);
-					max[d] = glm::max(max[d], t.max[d]);
+					min[d] = std::min(min[d], t.min[d]);
+					max[d] = std::max(max[d], t.max[d]);
 				}
 				if (model) t.setTransformation(glm::mat4(1.0f));
 				triangles.push_back(t);
@@ -49,12 +53,16 @@ struct BoundingBox {
 			sort(T.begin(), T.end(), [axis](Triangle a, Triangle b) {
 				return a.o[axis] < b.o[axis];
 			});
+
 			int mid = T.size() / 2;
-			left = new BoundingBox(vector<Triangle>(T.begin(), T.begin() + mid), (axis + 1) % 3, model, l + 1);
-			right = new BoundingBox(vector<Triangle>(T.begin() + mid, T.end()), (axis + 1) % 3, model, l + 1);
+			vector<Triangle> leftT(T.begin(), T.begin() + mid);
+			vector<Triangle> rightT(T.begin() + mid, T.end());
+
+			left = new BoundingBox(leftT, (axis + 1) % 3, model, l + 1);
+			right = new BoundingBox(rightT, (axis + 1) % 3, model, l + 1);
 			for (int d = 0; d < 3; d++) {
-				min[d] = glm::min(left->min[d], right->min[d]);
-				max[d] = glm::max(left->max[d], right->max[d]);
+				min[d] = std::min(left->min[d], right->min[d]);
+				max[d] = std::max(left->max[d], right->max[d]);
 			}
 		}
 	}
@@ -66,32 +74,31 @@ struct BoundingBox {
 		if (right) delete right;
 	}
 
-	bool intersect(const Ray &ray) const {
-		float tnear = -1000000000.0f, tfar = 1000000000.0f;
-		for (int i = 0; i < 3; i++) {
-			if (ray.direction[i] == 0) {
-				if (ray.origin[i] < min[i] || ray.origin[i] > max[i]) {
-					return false;
-				}
-			} else {
-				float t1 = (min[i] - ray.origin[i]) / ray.direction[i];
-				float t2 = (max[i] - ray.origin[i]) / ray.direction[i];
-				if (t1 > t2) {
-					float tmp = t1;
-					t1 = t2;
-					t2 = tmp;
-				}
-				tnear = t1 > tnear ? t1 : tnear;
-				tfar = t2 < tfar ? t2 : tfar;
-				if (tnear > tfar || tfar < 0) {
-					return false;
-				}
-			}
-		}
-		return true;
+	bool intersect(const Ray &ray, float t0=0, float t1=FLOAT_INFINITY) const {
+		// return true;
+		float tmin, tmax, tymin, tymax, tzmin, tzmax;
+		glm::vec3 bounds[] = {min, max};
+
+		tmin = (bounds[ray.sign[0]].x - ray.origin.x) * ray.inv_direction.x;
+		tmax = (bounds[1-ray.sign[0]].x - ray.origin.x) * ray.inv_direction.x;
+		tymin = (bounds[ray.sign[1]].y - ray.origin.y) * ray.inv_direction.y;
+		tymax = (bounds[1-ray.sign[1]].y - ray.origin.y) * ray.inv_direction.y;
+
+		if ((tmin > tymax) || (tymin > tmax)) return false;
+		if (tymin > tmin) tmin = tymin;
+		if (tymax < tmax) tmax = tymax;
+
+		tzmin = (bounds[ray.sign[2]].z - ray.origin.z) * ray.inv_direction.z;
+		tzmax = (bounds[1-ray.sign[2]].z - ray.origin.z) * ray.inv_direction.z;
+
+		if ((tmin > tzmax) || (tzmin > tmax)) return false;
+		if (tzmin > tmin) tmin = tzmin;
+		if (tzmax < tmax) tmax = tzmax;
+
+		return ((tmin < t1) && (tmax > t0));
 	}
 
-	vector<Hit> trace_ray(const Ray &ray) const {
+	Hit trace_ray(const Ray &ray) const {
 		Ray R = ray;
 		if (model) {
 			glm::vec3 local_o = model->inverseTransformationMatrix * glm::vec4(ray.origin, 1.0);
@@ -99,37 +106,28 @@ struct BoundingBox {
 			local_d = glm::normalize(local_d);
 			R = Ray(local_o, local_d);
 		}
-		vector<Hit> hits;
-		// if (intersect(R)) {
-		if (true) {
-			if (left) {
-				vector<Hit> leftHits = left->trace_ray(ray);
-				for (Hit hit : leftHits) {
-					hits.push_back(hit);
-				}
-			}
-			if (right) {
-				vector<Hit> rightHits = right->trace_ray(ray);
-				for (Hit hit : rightHits) {
-					hits.push_back(hit);
-				}
-			}
+		Hit bestHit, tmpHit;
+		if (intersect(R)) {
+			if (left) tmpHit = left->trace_ray(ray);
+			if (tmpHit.distance < bestHit.distance) bestHit = tmpHit;
+			if (right) tmpHit = right->trace_ray(ray);
+			if (tmpHit.distance < bestHit.distance) bestHit = tmpHit;
 			if (triangles.size() > 0) {
 				for (Triangle t : triangles) {
-					Hit hit = t.intersect(R);
-					if (hit.hit) {
+					tmpHit = t.intersect(R);
+					if (tmpHit.hit) {
 						if (model) {
-							hit.intersection = model->transformationMatrix * glm::vec4(hit.intersection, 1.0);
-							hit.normal = glm::normalize(model->normalMatrix * glm::vec4(hit.normal, 0.0));
-							hit.distance = glm::length(hit.intersection - ray.origin);
-							// hit.debug = true;
+							tmpHit.intersection = model->transformationMatrix * glm::vec4(tmpHit.intersection, 1.0);
+							tmpHit.normal = glm::normalize(model->normalMatrix * glm::vec4(tmpHit.normal, 0.0));
+							tmpHit.distance = glm::length(tmpHit.intersection - ray.origin);
+							tmpHit.debug = true;
 						}
-						hits.push_back(hit);
+						if (tmpHit.distance < bestHit.distance) bestHit = tmpHit;
 					}
 				}
 			}
 		}
-		return hits;
+		return bestHit;
 	}
 
 	int boxes() const {

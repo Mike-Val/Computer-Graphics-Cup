@@ -1,8 +1,13 @@
+#ifndef HIT_HPP
+#define HIT_HPP
+
+#include <limits>
+
 #include "glm/glm.hpp"
 #include "Object.hpp"
 
-#ifndef HIT_HPP
-#define HIT_HPP
+#define FLOAT_INFINITY std::numeric_limits<float>::infinity()
+
 
 class Object;
 
@@ -18,6 +23,9 @@ struct Hit{
 	glm::vec2 uv; ///< Coordinates for computing the texture (texture coordinates)
 
     bool debug = false;
+
+    Hit() : hit(false), distance(FLOAT_INFINITY), object(nullptr) {}
+    Hit(const Hit &h) : hit(h.hit), normal(h.normal), intersection(h.intersection), distance(h.distance), object(h.object), uv(h.uv) {}
 };
 
 #endif

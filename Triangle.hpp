@@ -54,7 +54,7 @@ struct Triangle : Object {
 
 		if ((area_a < 0) || (area_b < 0) || (area_c < 0)) return hit;
 
-		glm::vec3 n = glm::normalize(area_a * n_a + area_b * n_b + area_c * n_c);
+		glm::vec3 n = area_a * n_a + area_b * n_b + area_c * n_c;
 		n = normal;
 
 		hit.hit = true;

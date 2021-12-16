@@ -76,7 +76,7 @@ glm::vec3 PhongModel(const vector<Light *> &lights,
 		r = max(r, 0.1f);
 		
 		// Checking if the light source can be reached directly from the point
-		Ray shadow_ray(point + light_direction * 0.001f, light_direction);
+		Ray shadow_ray(point + light_direction * 0.01f, light_direction);
 		Hit shadow_hit;
 		for (auto o : objects) {
 			shadow_hit = o->intersect(shadow_ray);
@@ -106,10 +106,11 @@ glm::vec3 trace_ray(const vector<Light *> &lights,
 		Hit hit_ = objects[k]->intersect(ray);
 		if(hit_.hit == true && hit_.distance < hit.distance) hit = hit_;
 	}
-	for (auto &hit_ : bbox.trace_ray(ray)) {
-		if (hit_.hit && hit_.distance < hit.distance) hit = hit_;
-	}
+	Hit bb_hit = bbox.trace_ray(ray);
+	if (bb_hit.hit && bb_hit.distance < hit.distance) hit = bb_hit;
 
+	// if (hit.debug) return glm::vec3(1.0, 0.0, 0.0);
+	// if (hit.debug) return glm::vec3(1.0 - (hit.distance - 6.0) / 10.0, 0.0, 0.0);
 	// if (hit.debug) return (hit.normal+1.0f)/2.0f;
 
 	if (!hit.hit) return {0,0,0};
@@ -125,7 +126,7 @@ glm::vec3 trace_ray(const vector<Light *> &lights,
 	glm::vec3 reflect(0);
 	glm::vec3 reflect_direction = glm::reflect(ray.direction, hit.normal);
 	if (m.reflection > 0) {
-		reflect = trace_ray(lights, ambient_light, objects, Ray(hit.intersection + reflect_direction * 0.001f, reflect_direction), maxDepth - 1, bbox) * m.reflection;
+		reflect = trace_ray(lights, ambient_light, objects, Ray(hit.intersection + reflect_direction * 0.01f, reflect_direction), maxDepth - 1, bbox) * m.reflection;
 		return reflect + phong * (1 - m.reflection);
 	}
 
@@ -142,8 +143,8 @@ glm::vec3 trace_ray(const vector<Light *> &lights,
 		glm::vec3 refract_direction = glm::refract(ray.direction, hit.normal, d1 / d2);
 		float F = fresnel_factor(reflect_direction, refract_direction, hit.normal, d1, d2);
 
-		glm::vec3 fresnel_reflect = F * trace_ray(lights, ambient_light, objects, Ray(hit.intersection + reflect_direction * 0.001f, reflect_direction), maxDepth - 1, bbox);
-		glm::vec3 fresnel_refract = (1 - F) * trace_ray(lights, ambient_light, objects, Ray(hit.intersection + refract_direction * 0.001f, refract_direction), maxDepth - 1, bbox);
+		glm::vec3 fresnel_reflect = F * trace_ray(lights, ambient_light, objects, Ray(hit.intersection + reflect_direction * 0.01f, reflect_direction), maxDepth - 1, bbox);
+		glm::vec3 fresnel_refract = (1 - F) * trace_ray(lights, ambient_light, objects, Ray(hit.intersection + refract_direction * 0.01f, refract_direction), maxDepth - 1, bbox);
 
 		refract = fresnel_reflect + fresnel_refract;
 		return refract;

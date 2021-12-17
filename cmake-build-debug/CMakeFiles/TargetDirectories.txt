@@ -1,0 +1,3 @@
+/Users/mike/Git-Hub/Computer-Graphics-Cup/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/mike/Git-Hub/Computer-Graphics-Cup/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/mike/Git-Hub/Computer-Graphics-Cup/cmake-build-debug/CMakeFiles/Computer_Graphics_Cup.dir

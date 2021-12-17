@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <utility>
 #include <vector>
 #include <algorithm>
 #include <cmath>
@@ -28,14 +29,14 @@ struct Model {
 	glm::mat4 normalMatrix;
 
 
-	Model(string name) : Model(name, true) {}
-	Model(string name, bool good) : name(name), good(good) {}
+	explicit Model(string name) : Model(std::move(name), true) {}
+	Model(string name, bool good) : name(std::move(name)), good(good) {}
 
 	void addTriangle(Triangle t) {
 		triangles.push_back(t);
 	}
 
-	string toString() const {
+	[[nodiscard]] string toString() const {
 		stringstream ss;
 		ss << "OBJ::Model (" << name << "): " << triangles.size() << " triangles";
 		return ss.str();
@@ -85,12 +86,12 @@ Model read(const string &filename) {
 			string token;
 			while (getline(ss, token, ' ')) {
 				stringstream token_ss(token);
-				int vertex = 0, normal;
+				int vertex = -1, normal;
 				string index;
 				while (getline(token_ss, index, '/')) {
 					if (index.length() > 0) {
 						stringstream index_ss(index);
-						if (vertex == 0) {
+						if (vertex == -1) {
 							index_ss >> vertex;
 						}
 						else index_ss >> normal;
@@ -100,8 +101,11 @@ Model read(const string &filename) {
 				face_normals.push_back(normal - 1);
 			}
 			model.addTriangle(Triangle(vertices[face_vertices[0]],
-										vertices[face_vertices[1]],
-										vertices[face_vertices[2]]));
+                                           vertices[face_vertices[1]],
+                                           vertices[face_vertices[2]],
+                                           normals[face_normals[0]],
+                                           normals[face_normals[1]],
+                                           normals[face_normals[2]]));
 		}
 	}
 	model.good = true;

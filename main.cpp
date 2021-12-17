@@ -33,27 +33,27 @@ using namespace std;
 
 
 int main(int argc, const char * argv[]) {
-    Material red_diffuse;
-	red_diffuse.ambient = glm::vec3(0.09f, 0.06f, 0.06f);
-	red_diffuse.diffuse = glm::vec3(0.9f, 0.6f, 0.6f);
-    glm::mat4 translationMatrix = glm::translate(glm::vec3(0,0,10));
-    float scale = 60;
+    Material model_material;
+//	model_material.ambient = glm::vec3(0.09f, 0.09f, 0.09f);
+//	model_material.diffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+//    model_material.shininess = 100.0;
+//    model_material.reflection = 1.0;
+    model_material.refraction = 2.0;
+
+    glm::mat4 translationMatrix = glm::translate(glm::vec3(3,1,15));
+    float scale = 75;
 	glm::mat4 scalingMatrix = glm::scale(glm::vec3(scale, scale, -scale));
 	// glm::mat4 rotationMatrix = glm::rotate(glm::radians(35.0f) , glm::vec3(0,1,0)) * glm::rotate(glm::radians(-10.0f) , glm::vec3(1,0,0));
 	glm::mat4 rotationMatrix = glm::rotate(glm::radians(0.0f) , glm::vec3(1,0,0));
 	glm::mat4 modelMatrix = translationMatrix * rotationMatrix * scalingMatrix;
 
-	OBJ::Model model = OBJ::read("models/bunny.obj");
-    model.material = red_diffuse;
+	OBJ::Model model = OBJ::read("../models/bunny_smooth.obj");
+    model.material = model_material;
     model.setTransformation(modelMatrix);
 
 	cout << model << endl;
 
     BoundingBox bbox = BoundingBox(model);
-    cout << "Boxes: " << bbox.boxes() << endl;
-    cout << "Leaves: " << bbox.leaves() << endl;
-    cout << "Count: " << bbox.count() << endl;
-    cout << "Depth: " << bbox.depth() << endl;
 
     int width = 1024*4; //width of the image
     int height = 768*4; // height of the image
@@ -95,14 +95,14 @@ int main(int argc, const char * argv[]) {
                     }
                 };
 
-    for (int a = 0; a < threads; a++) {
-        pool.push_task(task, 
-                        int(a*(double(height)/threads)), 
-                        int((a+1)*(double(height)/threads)));
-    }
-    cout << "Submitted tasks" << endl;
-    pool.wait_for_tasks();
-    cout << "Finished tasks" << endl;
+     for (int a = 0; a < threads; a++) {
+         pool.push_task(task,
+                         int(a*(double(height)/threads)),
+                         int((a+1)*(double(height)/threads)));
+     }
+     cout << "Submitted tasks" << endl;
+     pool.wait_for_tasks();
+     cout << "Finished tasks" << endl;
 
     t = clock() - t;
     cout<<"It took " << ((float)t)/CLOCKS_PER_SEC<< " seconds to render the image."<< endl;
@@ -112,7 +112,7 @@ int main(int argc, const char * argv[]) {
 	if (argc == 2){
 		image.writeImage(argv[2]);
 	}else{
-		image.writeImage("./result.ppm");
+		image.writeImage("../result.ppm");
 	}
 
     return 0;

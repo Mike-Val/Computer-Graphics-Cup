@@ -19,7 +19,7 @@ struct Material{
     glm::vec3 diffuse = glm::vec3(1.0);
     glm::vec3 specular = glm::vec3(0.0);
     float shininess = 0.0;
-    glm::vec3 (* texture)(glm::vec2 uv) = NULL;
+    glm::vec3 (* texture)(glm::vec2 uv) = nullptr;
     float refraction = 0.0;
     float reflection = 0.0;
 };

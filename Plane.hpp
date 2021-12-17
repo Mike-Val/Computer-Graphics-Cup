@@ -18,7 +18,7 @@ public:
 	Plane(glm::vec3 point, glm::vec3 normal, Material material) : point(point), normal(normal){
 		this->material = material;
 	}
-	Hit intersect(const Ray &ray){
+	Hit intersect(const Ray &ray) override {
 		Hit hit;
 		hit.hit = false;
 		float DdotN = glm::dot(ray.direction, normal);

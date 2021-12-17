@@ -26,26 +26,27 @@ struct BoundingBox {
 	Model *model = nullptr;
 	int level;
 
-	BoundingBox();
+	BoundingBox() {};
 	BoundingBox(vector<Triangle> &T, int axis, Model *m, int l) {
 		level = l;
 		model = m;
 		if (T.size() == 0) {
 			cout << "Empty Bounding Box" << endl;
 			throw "Empty triangle vector";
-			return;
 		}
 		
 		if (T.size() <= maxSize) {
 			min = FLOAT_INFINITY * glm::vec3(1, 1, 1);
 			max = -FLOAT_INFINITY * glm::vec3(1, 1, 1);
-			for (int i = 0; i < T.size(); i++) {
-				Triangle t = T[i];
-				for (int d = 0; d < 3; d++) {
+			for (auto &t : T) {
+                for (int d = 0; d < 3; d++) {
 					min[d] = std::min(min[d], t.min[d]);
 					max[d] = std::max(max[d], t.max[d]);
 				}
-				if (model) t.setTransformation(glm::mat4(1.0f));
+				if (model) {
+					t.setTransformation(glm::mat4(1.0f));
+					t.setMaterial(model->material);
+				}
 				triangles.push_back(t);
 			}
 			return;
@@ -66,16 +67,16 @@ struct BoundingBox {
 			}
 		}
 	}
-	BoundingBox(vector<Triangle> &T) : BoundingBox(T, 0, nullptr, 0) {};
-	BoundingBox(Model &M) : BoundingBox(M.triangles, 0, &M, 0) {};
+	explicit BoundingBox(vector<Triangle> &T) : BoundingBox(T, 0, nullptr, 0) {};
+	explicit BoundingBox(Model &M) : BoundingBox(M.triangles, 0, &M, 0) {};
 
 	~BoundingBox() {
-		if (left) delete left;
-		if (right) delete right;
+		delete left;
+		delete right;
 	}
 
-	bool intersect(const Ray &ray, float t0=0, float t1=FLOAT_INFINITY) const {
-		// return true;
+	[[nodiscard]] bool intersect(const Ray &ray, float t0=0, float t1=FLOAT_INFINITY) const {
+//        return true;
 		float tmin, tmax, tymin, tymax, tzmin, tzmax;
 		glm::vec3 bounds[] = {min, max};
 
@@ -98,7 +99,7 @@ struct BoundingBox {
 		return ((tmin < t1) && (tmax > t0));
 	}
 
-	Hit trace_ray(const Ray &ray) const {
+	[[nodiscard]] Hit trace_ray(const Ray &ray) const {
 		Ray R = ray;
 		if (model) {
 			glm::vec3 local_o = model->inverseTransformationMatrix * glm::vec4(ray.origin, 1.0);
@@ -112,17 +113,20 @@ struct BoundingBox {
 			if (tmpHit.distance < bestHit.distance) bestHit = tmpHit;
 			if (right) tmpHit = right->trace_ray(ray);
 			if (tmpHit.distance < bestHit.distance) bestHit = tmpHit;
-			if (triangles.size() > 0) {
+			if (!triangles.empty()) {
 				for (Triangle t : triangles) {
 					tmpHit = t.intersect(R);
 					if (tmpHit.hit) {
 						if (model) {
 							tmpHit.intersection = model->transformationMatrix * glm::vec4(tmpHit.intersection, 1.0);
-							tmpHit.normal = glm::normalize(model->normalMatrix * glm::vec4(tmpHit.normal, 0.0));
+							tmpHit.normal = model->normalMatrix * glm::vec4(tmpHit.normal, 0.0);
 							tmpHit.distance = glm::length(tmpHit.intersection - ray.origin);
 							tmpHit.debug = true;
 						}
-						if (tmpHit.distance < bestHit.distance) bestHit = tmpHit;
+                        if (tmpHit.distance < bestHit.distance) {
+                            bestHit = tmpHit;
+                            bestHit.normal = glm::normalize(bestHit.normal);
+                        }
 					}
 				}
 			}
@@ -134,7 +138,7 @@ struct BoundingBox {
 		return 1 + (left ? left->boxes() : 0) + (right ? right->boxes() : 0);
 	}
 	int leaves() const {
-		return (left ? left->leaves() : 0) + (right ? right->leaves() : 0) + (triangles.size() > 0 ? 1 : 0);
+		return (left ? left->leaves() : 0) + (right ? right->leaves() : 0) + (!triangles.empty() ? 1 : 0);
 	}
 	int count() const {
 		return triangles.size() + (left ? left->count() : 0) + (right ? right->count() : 0);

@@ -24,7 +24,7 @@ public:
     virtual Hit intersect(const Ray &ray) = 0;
 
 	/** Function that returns the material struct of the object*/
-	Material getMaterial(){
+	[[nodiscard]] Material getMaterial() const {
 		return material;
 	}
 	/** Function that set the material

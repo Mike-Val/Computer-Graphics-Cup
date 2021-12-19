@@ -27,6 +27,14 @@ struct BoundingBox {
 	int level;
 
 	BoundingBox() {};
+
+    /**
+     * Recursive bounding box constructor. Creates an axis aligned bounding box hierarchy.
+     * @param T vector of triangles to store.
+     * @param axis the axis (x,y,z) currently considered.
+     * @param m pointer to the model.
+     * @param l the level of the tree.
+     */
 	BoundingBox(vector<Triangle> &T, int axis, Model *m, int l) {
 		level = l;
 		model = m;
@@ -34,7 +42,7 @@ struct BoundingBox {
 			cout << "Empty Bounding Box" << endl;
 			throw "Empty triangle vector";
 		}
-		
+		// if there is space, add the triangles
 		if (T.size() <= maxSize) {
 			min = FLOAT_INFINITY * glm::vec3(1, 1, 1);
 			max = -FLOAT_INFINITY * glm::vec3(1, 1, 1);
@@ -50,7 +58,7 @@ struct BoundingBox {
 				triangles.push_back(t);
 			}
 			return;
-		} else {
+		} else { // otherwise split them along the axis and set the left and right pointers
 			sort(T.begin(), T.end(), [axis](Triangle a, Triangle b) {
 				return a.o[axis] < b.o[axis];
 			});
@@ -68,6 +76,11 @@ struct BoundingBox {
 		}
 	}
 	explicit BoundingBox(vector<Triangle> &T) : BoundingBox(T, 0, nullptr, 0) {};
+
+    /**
+     * Creates an axis aligned bounding box hierarchy for the given Model.
+     * @param M the Model.
+     */
 	explicit BoundingBox(Model &M) : BoundingBox(M.triangles, 0, &M, 0) {};
 
 	~BoundingBox() {

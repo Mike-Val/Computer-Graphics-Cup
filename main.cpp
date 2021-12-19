@@ -33,6 +33,7 @@ using namespace std;
 
 
 int main(int argc, const char * argv[]) {
+    // define the material for the model
     Material model_material;
 	model_material.ambient = glm::vec3(0.09f, 0.09f, 0.09f);
 	model_material.diffuse = glm::vec3(0.6f, 0.6f, 0.6f);
@@ -40,6 +41,7 @@ int main(int argc, const char * argv[]) {
 //    model_material.reflection = 1.0;
     model_material.refraction = 2.0;
 
+    // define affine matrices to place the model where desired
     glm::mat4 translationMatrix = glm::translate(glm::vec3(3,4,15));
     float scale = 8;
 	glm::mat4 scalingMatrix = glm::scale(glm::vec3(-scale, scale, -scale));
@@ -47,12 +49,14 @@ int main(int argc, const char * argv[]) {
 	glm::mat4 rotationMatrix = glm::rotate(glm::radians(55.0f) , glm::vec3(0,1,0));
 	glm::mat4 modelMatrix = translationMatrix * rotationMatrix * scalingMatrix;
 
+    // read the .obj file and create a Model
 	OBJ::Model model = OBJ::read("../models/skull.obj");
     model.material = model_material;
     model.setTransformation(modelMatrix);
 
 	cout << model << endl;
 
+    // initialize the bounding box hierarchy for this Model.
     BoundingBox bbox = BoundingBox(model);
 
     int width = 1024*4; //width of the image

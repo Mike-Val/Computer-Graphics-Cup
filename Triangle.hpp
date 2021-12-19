@@ -37,6 +37,7 @@ struct Triangle : Object {
 		float DdotN = glm::dot(local_d, normal);
         if (DdotN > 0) return hit;
 
+        // first test if there is intersection with the plane onto which the triangle lies.
 		Plane plane = Plane(o, normal);
 		Hit plane_hit = plane.intersect(Ray(local_o, local_d));
 		if (!plane_hit.hit) return hit;
@@ -44,7 +45,8 @@ struct Triangle : Object {
 		glm::vec3 p = plane_hit.intersection;
 
 		float area = glm::length(glm::cross(b - a, c - a));
-
+        // if there was a hit with the place, check if the hit was inside the triangle
+        // using the barycentric coordinates test.
 		glm::vec3 vec_a = glm::cross(b - p, c - p);
 		float area_a = glm::length(vec_a) * (glm::dot(vec_a, normal) < 0 ? -1.0f : 1.0f);
 		glm::vec3 vec_b = glm::cross(c - p, a - p);

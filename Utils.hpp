@@ -63,10 +63,9 @@ glm::vec3 PhongModel(const vector<Light *> &lights,
 
 		
 		glm::vec3 diffuse_color = material.diffuse;
-		// if(material.texture){
-		// 	cout << "PhongModel" << endl;
-		// 	diffuse_color = material.texture(uv);
-		// }
+		 if(material.texture){
+		 	diffuse_color = material.texture(uv);
+		 }
 		
 		glm::vec3 diffuse = diffuse_color * glm::vec3(NdotL);
 		glm::vec3 specular = material.specular * glm::vec3(pow(VdotR, material.shininess));

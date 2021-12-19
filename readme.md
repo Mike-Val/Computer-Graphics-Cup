@@ -1,6 +1,6 @@
 # Computer Graphics Cup
 
-### Authors:
+### Authors: 
 
 Valsecchi Michelangelo and Michele Cattaneo
 

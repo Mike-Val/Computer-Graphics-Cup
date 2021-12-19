@@ -56,6 +56,7 @@ struct Triangle : Object {
 
 		if ((area_a < 0) || (area_b < 0) || (area_c < 0)) return hit;
 
+        // Compute interpolated normal
 		glm::vec3 n = glm::normalize(area_a * n_a + area_b * n_b + area_c * n_c);
 //		n = normal;
 

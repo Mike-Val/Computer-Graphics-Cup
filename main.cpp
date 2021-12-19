@@ -50,7 +50,7 @@ int main(int argc, const char * argv[]) {
 	glm::mat4 modelMatrix = translationMatrix * rotationMatrix * scalingMatrix;
 
     // read the .obj file and create a Model
-	OBJ::Model model = OBJ::read("../models/skull.obj");
+	OBJ::Model model = OBJ::read("models/skull.obj");
     model.material = model_material;
     model.setTransformation(modelMatrix);
 
@@ -99,6 +99,7 @@ int main(int argc, const char * argv[]) {
                     }
                 };
 
+    // Submitting the rendering tasks to all the available threads
      for (int a = 0; a < threads; a++) {
          pool.push_task(task,
                          int(a*(double(height)/threads)),
@@ -116,7 +117,7 @@ int main(int argc, const char * argv[]) {
 	if (argc == 2){
 		image.writeImage(argv[2]);
 	}else{
-		image.writeImage("../result.ppm");
+		image.writeImage("result.ppm");
 	}
 
     return 0;

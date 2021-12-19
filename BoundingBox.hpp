@@ -89,7 +89,7 @@ struct BoundingBox {
 	}
 
 	[[nodiscard]] bool intersect(const Ray &ray, float t0=0, float t1=FLOAT_INFINITY) const {
-//        return true;
+        // Inspired by http://people.csail.mit.edu/amy/papers/box-jgt.pdf
 		float tmin, tmax, tymin, tymax, tzmin, tzmax;
 		glm::vec3 bounds[] = {min, max};
 
@@ -112,6 +112,7 @@ struct BoundingBox {
 		return ((tmin < t1) && (tmax > t0));
 	}
 
+    // Recursive ray intersection function.
 	[[nodiscard]] Hit trace_ray(const Ray &ray) const {
 		Ray R = ray;
 		if (model) {

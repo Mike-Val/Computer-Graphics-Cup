@@ -16,4 +16,6 @@ Make a raytracer capable of rendering triangle meshes by implementing ray-triang
 
 The raytracer can be run manually by first compiling the code with `c++ -std=c++17 -O3 main.cpp -o main` followed by `./main && open result.ppm` to run the program and visualise the result. Note the requirement of using c++17 which comes from the threadpool used to parallelise the program. The flag `-O3` tells the compiler to use optimizations that allow a faster execution.
 
-Alternatively one can run the program using `cmake`: TODO
+Alternatively one can run the program using `cmake` with the shortcuts implemented in the `makefile`:
+- `make compile`: compiles the code
+- `make render`: runs the program and outputs the result in `result.ppm`

@@ -34,20 +34,20 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
     Material model_material;
-//	model_material.ambient = glm::vec3(0.09f, 0.09f, 0.09f);
-//	model_material.diffuse = glm::vec3(0.6f, 0.6f, 0.6f);
-//    model_material.shininess = 100.0;
+	model_material.ambient = glm::vec3(0.09f, 0.09f, 0.09f);
+	model_material.diffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+    model_material.shininess = 100.0;
 //    model_material.reflection = 1.0;
     model_material.refraction = 2.0;
 
-    glm::mat4 translationMatrix = glm::translate(glm::vec3(3,1,15));
-    float scale = 75;
-	glm::mat4 scalingMatrix = glm::scale(glm::vec3(scale, scale, -scale));
-	// glm::mat4 rotationMatrix = glm::rotate(glm::radians(35.0f) , glm::vec3(0,1,0)) * glm::rotate(glm::radians(-10.0f) , glm::vec3(1,0,0));
-	glm::mat4 rotationMatrix = glm::rotate(glm::radians(0.0f) , glm::vec3(1,0,0));
+    glm::mat4 translationMatrix = glm::translate(glm::vec3(3,4,15));
+    float scale = 8;
+	glm::mat4 scalingMatrix = glm::scale(glm::vec3(-scale, scale, -scale));
+//	 glm::mat4 rotationMatrix = glm::rotate(glm::radians(55.0f) , glm::vec3(0,1,0)) * glm::rotate(glm::radians(15.0f) , glm::vec3(0,0,1));
+	glm::mat4 rotationMatrix = glm::rotate(glm::radians(55.0f) , glm::vec3(0,1,0));
 	glm::mat4 modelMatrix = translationMatrix * rotationMatrix * scalingMatrix;
 
-	OBJ::Model model = OBJ::read("../models/bunny_smooth.obj");
+	OBJ::Model model = OBJ::read("../models/skull.obj");
     model.material = model_material;
     model.setTransformation(modelMatrix);
 
